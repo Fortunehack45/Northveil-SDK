@@ -15,6 +15,13 @@ import {
   SecurityScanResult,
   SendTransferParams,
   GasEstimate,
+  MintTokensParams,
+  MintTokensResult,
+  ReserveTokensParams,
+  ReserveTokensResult,
+  MakeReservationParams,
+  MakeReservationResult,
+  ListReservationsResult,
 } from './types.js';
 
 export class NorthveilClient {
@@ -47,8 +54,8 @@ export class NorthveilClient {
     return res.json() as Promise<T>;
   }
 
-  private mcpCall<T>(toolName: string, args: Record<string, any> = {}): Promise<T> {
-    return this.request<T>('/mcp', {
+  private async mcpCall<T>(toolName: string, args: Record<string, any> = {}): Promise<T> {
+    const raw = await this.request<any>('/mcp', {
       method: 'POST',
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -57,6 +64,10 @@ export class NorthveilClient {
         id: Date.now(),
       }),
     });
+    if (raw?.error) {
+      throw new Error(`MCP Tool Error (${toolName}): ${raw.error.message || JSON.stringify(raw.error)}`);
+    }
+    return (raw?.result !== undefined ? raw.result : raw) as T;
   }
 
   // ═══════════════════════════════════════════════════════
@@ -195,5 +206,32 @@ export class NorthveilClient {
   async verifySmartContract(params: { contractAddress: string; contractName: string; sourceCode?: string; network?: string; compilerVersion?: string }): Promise<any> {
     return this.mcpCall('verify_smart_contract', params);
   }
+
+  /** Mint new tokens from an ERC-20 contract */
+  async mintTokens(params: MintTokensParams): Promise<MintTokensResult> {
+    return this.mcpCall<MintTokensResult>('mint_tokens', params);
+  }
+
+  /** Create a time-locked token reservation */
+  async reserveTokens(params: ReserveTokensParams): Promise<ReserveTokensResult> {
+    return this.mcpCall<ReserveTokensResult>('reserve_tokens', params);
+  }
+
+  /** Create a web3 booking reservation & digital ticket pass (flight, movie, hotel, event, dining) */
+  async makeReservation(params: MakeReservationParams): Promise<MakeReservationResult> {
+    return this.mcpCall<MakeReservationResult>('make_reservation', params);
+  }
+
+  /** List active web3 reservations, flight boarding passes, and bookings */
+  async listReservations(params: { walletAddress?: string; category?: string } = {}): Promise<ListReservationsResult> {
+    return this.mcpCall<ListReservationsResult>('list_reservations', params);
+  }
+
+  /** Get full OpenAPI 3.0.3 schema for ChatGPT & REST Action integration */
+  async getOpenApiSchema(): Promise<any> {
+    const res = await fetch(`${this.baseUrl}/openapi.json`);
+    return res.json();
+  }
 }
+
 

@@ -1,4 +1,4 @@
-import { NorthveilConfig, SwapParams, DeployContractParams, TransactionResult, TokenPrice, TrendingMemecoin, TokenAuditResult, TradeOrderParams, TradeOrder, WalletHealthResult, SecurityScanResult, SendTransferParams } from './types.js';
+import { NorthveilConfig, SwapParams, DeployContractParams, TransactionResult, TokenPrice, TrendingMemecoin, TokenAuditResult, TradeOrderParams, TradeOrder, WalletHealthResult, SecurityScanResult, SendTransferParams, MintTokensParams, MintTokensResult, ReserveTokensParams, ReserveTokensResult, MakeReservationParams, MakeReservationResult, ListReservationsResult } from './types.js';
 export declare class NorthveilClient {
     private baseUrl;
     private apiKey;
@@ -66,5 +66,18 @@ export declare class NorthveilClient {
         network?: string;
         compilerVersion?: string;
     }): Promise<any>;
+    /** Mint new tokens from an ERC-20 contract */
+    mintTokens(params: MintTokensParams): Promise<MintTokensResult>;
+    /** Create a time-locked token reservation */
+    reserveTokens(params: ReserveTokensParams): Promise<ReserveTokensResult>;
+    /** Create a web3 booking reservation & digital ticket pass (flight, movie, hotel, event, dining) */
+    makeReservation(params: MakeReservationParams): Promise<MakeReservationResult>;
+    /** List active web3 reservations, flight boarding passes, and bookings */
+    listReservations(params?: {
+        walletAddress?: string;
+        category?: string;
+    }): Promise<ListReservationsResult>;
+    /** Get full OpenAPI 3.0.3 schema for ChatGPT & REST Action integration */
+    getOpenApiSchema(): Promise<any>;
 }
 //# sourceMappingURL=client.d.ts.map

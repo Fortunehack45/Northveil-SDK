@@ -28,8 +28,8 @@ class NorthveilClient {
         }
         return res.json();
     }
-    mcpCall(toolName, args = {}) {
-        return this.request('/mcp', {
+    async mcpCall(toolName, args = {}) {
+        const raw = await this.request('/mcp', {
             method: 'POST',
             body: JSON.stringify({
                 jsonrpc: '2.0',
@@ -38,6 +38,10 @@ class NorthveilClient {
                 id: Date.now(),
             }),
         });
+        if (raw?.error) {
+            throw new Error(`MCP Tool Error (${toolName}): ${raw.error.message || JSON.stringify(raw.error)}`);
+        }
+        return (raw?.result !== undefined ? raw.result : raw);
     }
     // ═══════════════════════════════════════════════════════
     // WALLET & PORTFOLIO
@@ -147,6 +151,27 @@ class NorthveilClient {
     /** Verify and publish smart contract source code on block explorer */
     async verifySmartContract(params) {
         return this.mcpCall('verify_smart_contract', params);
+    }
+    /** Mint new tokens from an ERC-20 contract */
+    async mintTokens(params) {
+        return this.mcpCall('mint_tokens', params);
+    }
+    /** Create a time-locked token reservation */
+    async reserveTokens(params) {
+        return this.mcpCall('reserve_tokens', params);
+    }
+    /** Create a web3 booking reservation & digital ticket pass (flight, movie, hotel, event, dining) */
+    async makeReservation(params) {
+        return this.mcpCall('make_reservation', params);
+    }
+    /** List active web3 reservations, flight boarding passes, and bookings */
+    async listReservations(params = {}) {
+        return this.mcpCall('list_reservations', params);
+    }
+    /** Get full OpenAPI 3.0.3 schema for ChatGPT & REST Action integration */
+    async getOpenApiSchema() {
+        const res = await fetch(`${this.baseUrl}/openapi.json`);
+        return res.json();
     }
 }
 exports.NorthveilClient = NorthveilClient;
