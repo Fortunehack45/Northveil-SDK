@@ -36,7 +36,7 @@ async function main() {
   // Under Always Ask: Returns APPROVAL_REQUIRED with passkey approval link.
   // Under Autonomous: Executes threshold MPC signing if inside pre-authorized limits.
   const transfer = await client.prepareTransfer({
-    to: '0x1234567890123456789012345678901234567890',
+    to: '0xYOUR_WALLET_ADDRESS',
     amount: '0.05',
     chain: 'eip155:8453',
     asset: 'ETH',
